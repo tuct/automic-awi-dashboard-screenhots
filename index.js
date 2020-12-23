@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-require('dotenv').config();
+
 const puppeteer = require('puppeteer');
 const env = require('env-var');
 const commandLineArgs = require('command-line-args');
@@ -22,11 +22,12 @@ const optionDefinitions = [
     typeLabel: '{underline string[]}'
   },
   {
-    name: 'dashboard',
+    name: 'env',
+    alias: 'e',
     type: String,
-    alias: 'd',
-    description: 'The name of the dashbopard object to process.',
-    typeLabel: '{underline string}'
+    defaultValue: '.env',
+    description: 'Path to the .env file containing the configuration',
+    typeLabel: '{underline file}'
   },
   {
     name: 'connection',
@@ -51,7 +52,7 @@ const optionDefinitions = [
     typeLabel: '{underline string}' 
   },
   { name: 'department', 
-    alias: 'e', 
+    alias: 'd', 
     type: String, 
     defaultValue: '',
     description: 'The department of the ae user.',
@@ -87,6 +88,15 @@ const optionDefinitions = [
 ]
 const options = commandLineArgs(optionDefinitions);
 
+let environmentPath = path.resolve(process.cwd(), options.env);
+
+require('dotenv').config(
+  {path: environmentPath}
+);
+
+
+
+
 let ae = {}
 let chromiumExecutablePath = '';
 try{
@@ -107,7 +117,7 @@ try{
   return;
 }
 
-ae.dashboard = options.dashboard;
+
 
 const sections = [
   {
@@ -117,7 +127,7 @@ const sections = [
   {
     header: 'Synopsis',
     content: [
-      'automic-awi-dashboard-screenhots {underline capture} {underline <dashboard name>} <options> ',
+      'automic-awi-dashboard-screenhots {underline capture} {bold <dashboard} [options...] ',
       'automic-awi-dashboard-screenhots {underline show-config}'
     ]
   },
@@ -136,7 +146,7 @@ const sections = [
   },
   {
     header: 'Options',
-    optionList: optionDefinitions
+    optionList: optionDefinitions.slice(1,optionDefinitions.length)
 
   }
 ]
@@ -148,9 +158,16 @@ if(options.commands && options.commands.length>0){
     showUsage = false;
   }
   if(command == 'show-config'){
-    let c = {...ae};
-    c.password = c.password.length>0?'***':'';
-    console.log(c);
+    console.log("Current configuration from .env file and environment variables");
+    console.log(`Checking for configuration in: '${environmentPath}' `)
+    console.log(`AE_VERSION: ${ae.version}`);
+    console.log(`AE_CONNECTION: ${ae.connection}`);
+    console.log(`AE_CLIENT: ${ae.client}`);
+    console.log(`AE_USERNAME: ${ae.username}`);
+    console.log(`AE_DEPARTMENT: ${ae.department}`);
+    console.log(`AE_PASSWORD: ${ae.password.length?'***':''}`);
+    console.log(`AE_AWI_URL: ${ae.url}`);
+    console.log(`WAIT_FOR_WIDGET: ${ae.waitForWidgets}`);
     return;
   }
 }
