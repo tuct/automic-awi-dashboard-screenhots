@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 require('dotenv').config();
 const puppeteer = require('puppeteer');
 const env = require('env-var');
@@ -12,11 +13,20 @@ const isPkg = typeof process.pkg !== 'undefined';
 
 const optionDefinitions = [
   {
-    name: 'dashboard',
+    name: 'commands',
     type: String,
     defaultOption: true,
+    multiple: true,
+    defaultValue: 'screenshot',
+    description: 'The commands to execute, {underline capture <dashboard name>} or {underline show-config}',
+    typeLabel: '{underline string[]}'
+  },
+  {
+    name: 'dashboard',
+    type: String,
+    alias: 'd',
     description: 'The name of the dashbopard object to process.',
-    typeLabel: '{underline dashboard}'
+    typeLabel: '{underline string}'
   },
   {
     name: 'connection',
@@ -24,35 +34,35 @@ const optionDefinitions = [
     alias: 'n',
     defaultValue: '',
     description: 'The ae connection name.',
-    typeLabel: '{underline connection}'
+    typeLabel: '{underline string}'
   },
   { name: 'client', 
     alias: 'c', 
     type: String, 
     defaultValue: '',
     description: 'The ae client.',
-    typeLabel: '{underline client}' 
+    typeLabel: '{underline string}' 
   },
   { name: 'username', 
     alias: 'u', 
     type: String, 
     defaultValue: '',
     description: 'The username of the ae user.',
-    typeLabel: '{underline username}' 
+    typeLabel: '{underline string}' 
   },
   { name: 'department', 
-    alias: 'd', 
+    alias: 'e', 
     type: String, 
     defaultValue: '',
     description: 'The department of the ae user.',
-    typeLabel: '{underline department}' 
+    typeLabel: '{underline string}' 
   },
   { name: 'password', 
     alias: 'p', 
     type: String, 
     defaultValue: '',
     description: 'The password of the ae user',
-    typeLabel: '{underline password}' 
+    typeLabel: '{underline string}' 
   },
   { name: 'url', 
     type: String, 
@@ -65,7 +75,7 @@ const optionDefinitions = [
     alias: 'v',
     defaultValue: '12.3',
     description: 'The ae/awi version 12.3 or 21',
-    typeLabel: '{underline ae_version}' 
+    typeLabel: '{underline string}' 
   },
   { name: 'waitForWidgets', 
     alias: 'w', 
@@ -76,6 +86,7 @@ const optionDefinitions = [
   }
 ]
 const options = commandLineArgs(optionDefinitions);
+
 let ae = {}
 let chromiumExecutablePath = '';
 try{
@@ -106,7 +117,8 @@ const sections = [
   {
     header: 'Synopsis',
     content: [
-      'node index.js {underline dashboard} <options> '
+      'automic-awi-dashboard-screenhots {underline capture} {underline <dashboard name>} <options> ',
+      'automic-awi-dashboard-screenhots {underline show-config}'
     ]
   },
   {
@@ -128,8 +140,23 @@ const sections = [
 
   }
 ]
+let showUsage = true;
+if(options.commands && options.commands.length>0){
+  let command = options.commands[0];
+  if(command == 'capture' && options.commands.length==2){
+    ae.dashboard = options.commands[1];
+    showUsage = false;
+  }
+  if(command == 'show-config'){
+    let c = {...ae};
+    c.password = c.password.length>0?'***':'';
+    console.log(c);
+    return;
+  }
+}
 
-let showUsage = !ae.dashboard;
+
+
 if(showUsage){
   const usage = commandLineUsage(sections);
   console.log(usage);

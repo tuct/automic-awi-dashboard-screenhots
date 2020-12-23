@@ -1,7 +1,7 @@
 {
   "name": "automic-awi-dashboard-screenhots",
   "version": "1.0.0",
-  "description": "Screenshots awi dashboards and the individual widgets for sharing via email,...",
+  "description": "Creates screenshots of a given awi dashboard and the individual widgets for sharing via email,...",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,6 +10,10 @@
   },
   "author": "tobi.stanzel@gmail.com",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tuct/automic-awi-dashboard-screenhots.git"
+  },
   "dependencies": {
     "command-line-args": "^5.1.1",
     "command-line-usage": "^6.1.1",
@@ -20,6 +24,6 @@
     "puppeteer": "^5.5.0"
   },
   "bin": {
-    "awi-dashboard": "./index.js"
+    "automic-awi-dashboard-screenhots": "./index.js"
   }
 }
