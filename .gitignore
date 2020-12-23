@@ -1,0 +1,7 @@
+**/node_modules
+**/build
+**/local_chrome
+.env
+.env_cd
+.DS_Store
+**/docker

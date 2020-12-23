@@ -1,0 +1,25 @@
+{
+  "name": "automic-awi-dashboard-screenhots",
+  "version": "1.0.0",
+  "description": "Screenshots awi dashboards and the individual widgets for sharing via email,...",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf build && pkg . --out-path build",
+    "postbuild": "cp .env.example build/.env"
+  },
+  "author": "tobi.stanzel@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "command-line-args": "^5.1.1",
+    "command-line-usage": "^6.1.1",
+    "dotenv": "^8.2.0",
+    "env-var": "^7.0.0",
+    "path": "^0.12.7",
+    "pkg": "^4.4.9",
+    "puppeteer": "^5.5.0"
+  },
+  "bin": {
+    "awi-dashboard": "./index.js"
+  }
+}
