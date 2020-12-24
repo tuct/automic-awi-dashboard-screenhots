@@ -1,16 +1,11 @@
 #!/usr/bin/env node
-
 const puppeteer = require('puppeteer');
 const env = require('env-var');
 const commandLineArgs = require('command-line-args');
 const commandLineUsage = require('command-line-usage')
 const path = require('path');
-const isPkg = typeof process.pkg !== 'undefined';
 
-
-//we require the basic connection to the ae to be set in the environment (or via .env file)
-
-
+//parse cli options and args
 const optionDefinitions = [
   {
     name: 'commands',
@@ -88,19 +83,13 @@ const optionDefinitions = [
 ]
 const options = commandLineArgs(optionDefinitions);
 
+//get path to .env file
 let environmentPath = path.resolve(process.cwd(), options.env);
+require('dotenv').config({path: environmentPath});
 
-require('dotenv').config(
-  {path: environmentPath}
-);
-
-
-
-
+//create ae options based on environment and cli parameters
 let ae = {}
-let chromiumExecutablePath = '';
 try{
-  chromiumExecutablePath = env.get('CHROME').example('/path/to/chrome or chromium executable').asString();
   ae = {
     version: env.get('AE_VERSION').example('12.3').default(options.ae_version).required().asString(),
     connection: env.get('AE_CONNECTION').example('AUTOMIC').default(options.connection).required().asString(),
@@ -117,8 +106,7 @@ try{
   return;
 }
 
-
-
+//create cli help
 const sections = [
   {
     header: 'AWI capture dashboard',
@@ -135,6 +123,7 @@ const sections = [
     header: 'Configuration',
     content: [
       'To configure the connection to the ae and the awi as well as the user credentials you have to setup the follwing environment variables:',
+      'AE_VERSION=12',
       'AE_CONNECTION=AUTOMIC',
       'AE_CLIENT=100',
       'AE_USERNAME=AUTOMIC',
@@ -150,6 +139,8 @@ const sections = [
 
   }
 ]
+
+//parse commands
 let showUsage = true;
 if(options.commands && options.commands.length>0){
   let command = options.commands[0];
@@ -171,21 +162,13 @@ if(options.commands && options.commands.length>0){
     return;
   }
 }
-
-
-
 if(showUsage){
   const usage = commandLineUsage(sections);
   console.log(usage);
   return;
 }
 
-if(isPkg && (!chromiumExecutablePath || chromiumExecutablePath!='')){
-  console.log("You need to define the path to chromium in version 88.0.4298.0 (Revision Number: chromium: '818858' for pupeteer 5.5)");
-  console.log("Define 'CHROME' as enviroment variable or in .env file and point to chromium")
-  return;
-}
-
+//create pupeteer and screenshots
 (async () => {
   try {
 
@@ -200,11 +183,6 @@ if(isPkg && (!chromiumExecutablePath || chromiumExecutablePath!='')){
       ]
     }
 
-    if(chromiumExecutablePath && chromiumExecutablePath!=''){
-      console.log("Using external chromium from: "+chromiumExecutablePath);
-      browserConfig.executablePath = chromiumExecutablePath
-    }
-
     const browser = await puppeteer.launch(browserConfig);
     const page = await browser.newPage();
     await page.setViewport({
@@ -214,8 +192,7 @@ if(isPkg && (!chromiumExecutablePath || chromiumExecutablePath!='')){
     });
     const clientPad = ae.client.padStart(4, "0");
 
-
-
+    // Deal with changes in v21 (login is different due to vaadin upgrade)
     let version = ae.version;
 
     if(version=="12.3"){
@@ -260,24 +237,18 @@ if(isPkg && (!chromiumExecutablePath || chromiumExecutablePath!='')){
       const loginButton = 'ecc-button[caption="Login"]';
       await page.waitForSelector(loginButton);
       await page.click(loginButton);
-    
-    // await page.waitForSelector('ecc-header-button[caption="Home"]');
-      
-      // let dashboard = await page.waitForSelector('ecc-layout-entry[slot="center"] div.uc4-dashboard-layout');
     }
     console.log("Login done, loading dashboard now...");
-
     let dashboard = await page.waitForSelector('div.uc4-dashboard-layout');
     console.log(`Dashboard loading, waiting now for ${ae.waitForWidgets} sec before making screenshot`);
     //move mouse out of the way!
     await page.mouse.move(0, 0);
-
     await page.waitForTimeout(ae.waitForWidgets * 1000);
-
     console.log("Snapshot dashboard now...");
     await dashboard.screenshot({
       path: `${ae.dashboard}.png`
     });
+    //get individual widgets now
     const widgets = await page.$$('div.uc4-dashboard-layout > div.v-gridlayout-slot > div.v-widgetcontainer');
     const wl = widgets.length;
     console.log(`Found ${wl} widgets, creating snaps now...`);
