@@ -87,25 +87,6 @@ const options = commandLineArgs(optionDefinitions);
 let environmentPath = path.resolve(process.cwd(), options.env);
 require('dotenv').config({path: environmentPath});
 
-//create ae options based on environment and cli parameters
-let ae = {}
-try{
-  ae = {
-    version: env.get('AE_VERSION').example('12.3').default(options.ae_version).required().asString(),
-    connection: env.get('AE_CONNECTION').example('AUTOMIC').default(options.connection).required().asString(),
-    client: env.get('AE_CLIENT').example('100').required().default(options.client).asString(),
-    username: env.get('AE_USERNAME').example('AUTOMIC').default(options.username).required().asString(),
-    department: env.get('AE_DEPARTMENT').example('AUTOMIC').default(options.department).required().asString(),
-    password: env.get('AE_PASSWORD').example('<your automic password>').default(options.password).required().asString(),
-    url: env.get('AE_AWI_URL').example('https://awi.my-company.com/awi').default(options.url).required().asUrlString(),
-    dashboard: env.get('DASHBOARD').asString(),
-    waitForWidgets: env.get('WAIT_FOR_WIDGET').default(10).asInt()
-  }
-}catch(EnvVarError){
-  console.log(EnvVarError.message);
-  return;
-}
-
 //create cli help
 const sections = [
   {
@@ -139,6 +120,28 @@ const sections = [
 
   }
 ]
+const usage = commandLineUsage(sections);
+
+//create ae options based on environment and cli parameters
+let ae = {}
+try{
+  ae = {
+    version: env.get('AE_VERSION').example('12.3').default(options.ae_version).required().asString(),
+    connection: env.get('AE_CONNECTION').example('AUTOMIC').default(options.connection).required().asString(),
+    client: env.get('AE_CLIENT').example('100').required().default(options.client).asString(),
+    username: env.get('AE_USERNAME').example('AUTOMIC').default(options.username).required().asString(),
+    department: env.get('AE_DEPARTMENT').example('AUTOMIC').default(options.department).required().asString(),
+    password: env.get('AE_PASSWORD').example('<your automic password>').default(options.password).required().asString(),
+    url: env.get('AE_AWI_URL').example('https://awi.my-company.com/awi').default(options.url).required().asUrlString(),
+    dashboard: env.get('DASHBOARD').asString(),
+    waitForWidgets: env.get('WAIT_FOR_WIDGET').default(10).asInt()
+  }
+}catch(EnvVarError){
+  console.log(EnvVarError.message);
+  console.log(usage);
+  return;
+}
+
 
 //parse commands
 let showUsage = true;
@@ -163,7 +166,7 @@ if(options.commands && options.commands.length>0){
   }
 }
 if(showUsage){
-  const usage = commandLineUsage(sections);
+ 
   console.log(usage);
   return;
 }

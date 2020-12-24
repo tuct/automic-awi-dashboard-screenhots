@@ -11,10 +11,10 @@ It uses Pupeteer and chromium to:
 
 Requires node 12, but will automatically download the required chromium!
 
-First install the dependecies 
+Install globally with npm, make sure your user is allowed to install global npm packages.
 
 ```bash
-npm install -g 
+npm install -g automic-awi-dashboard-screenhots
 ```
 
 ### Configuration
