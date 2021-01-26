@@ -29,7 +29,7 @@ You can also create multiple .env files for each ae you want to use and use the 
 
 ```bash
 #Create a .env file or create environment variables
-AE_VERSION=12  #12 for 12.0 - 12.3, 21 for next release
+AE_VERSION=12.3  #12.3 for 12.0 - 12.3, 21 for next release
 AE_CONNECTION=AUTOMIC
 AE_CLIENT=100
 AE_USERNAME=AUTOMIC
